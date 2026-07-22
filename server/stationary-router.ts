@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createRouter, adminQuery, authedQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
-import { createAuditLog } from "./lib/utils";
-import { BRANCH_ROLES, type BranchRole } from "./lib/db-types";
+import { createRouter, adminQuery, authedQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
+import { createAuditLog } from "./lib/utils.js";
+import { BRANCH_ROLES, type BranchRole } from "./lib/db-types.js";
 
 const PORTAL_SETTINGS_ID = "00000000-0000-0000-0000-000000000000";
 

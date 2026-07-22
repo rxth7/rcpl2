@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createRouter, publicQuery, adminQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
-import type { TicketStatusRow } from "./lib/db-types";
-import { createAuditLog } from "./lib/utils";
+import { createRouter, publicQuery, adminQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
+import type { TicketStatusRow } from "./lib/db-types.js";
+import { createAuditLog } from "./lib/utils.js";
 
 export const ticketStatusRouter = createRouter({
   list: publicQuery.query(async () => {

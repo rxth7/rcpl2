@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { createRouter, adminQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
-import type { TicketStatusRow, TicketPriorityRow, TicketCategoryRow, TicketRow, Profile } from "./lib/db-types";
+import { createRouter, adminQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
+import type { TicketStatusRow, TicketPriorityRow, TicketCategoryRow, TicketRow, Profile } from "./lib/db-types.js";
 
 export const reportRouter = createRouter({
   generate: adminQuery

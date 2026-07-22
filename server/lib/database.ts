@@ -19,7 +19,7 @@ import type {
   TicketStatusRow,
   TicketSubcategoryRow,
   TicketTimelineRow,
-} from "./db-types";
+} from "./db-types.js";
 
 type Table<R> = {
   Row: R;

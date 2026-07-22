@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { createRouter, authedQuery, adminQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
-import type { TicketRow } from "./lib/db-types";
+import { createRouter, authedQuery, adminQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
+import type { TicketRow } from "./lib/db-types.js";
 import {
   generateTicketNumber,
   createTimelineEntry,
   createNotification,
   notifyAllAdmins,
   createAuditLog,
-} from "./lib/utils";
-import type { TrpcContext } from "./context";
+} from "./lib/utils.js";
+import type { TrpcContext } from "./context.js";
 
 function getActorName(ctx: { user: TrpcContext["user"] }): string {
   if (!ctx.user) return "Unknown";

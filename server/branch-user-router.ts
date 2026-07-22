@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createRouter, adminQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
-import type { Profile } from "./lib/db-types";
-import { createAuditLog } from "./lib/utils";
+import { createRouter, adminQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
+import type { Profile } from "./lib/db-types.js";
+import { createAuditLog } from "./lib/utils.js";
 
 export const branchUserRouter = createRouter({
   list: adminQuery

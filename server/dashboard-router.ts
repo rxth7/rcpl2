@@ -1,6 +1,6 @@
-import { createRouter, adminQuery, authedQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
-import type { Profile, TicketStatusRow, TicketPriorityRow, TicketRow, TicketTimelineRow } from "./lib/db-types";
+import { createRouter, adminQuery, authedQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
+import type { Profile, TicketStatusRow, TicketPriorityRow, TicketRow, TicketTimelineRow } from "./lib/db-types.js";
 
 export const dashboardRouter = createRouter({
   adminStats: adminQuery.query(async () => {

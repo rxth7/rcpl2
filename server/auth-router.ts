@@ -1,5 +1,5 @@
-import { createRouter, authedQuery } from "./middleware";
-import type { UnifiedUser } from "./lib/db-types";
+import { createRouter, authedQuery } from "./middleware.js";
+import type { UnifiedUser } from "./lib/db-types.js";
 
 export const authRouter = createRouter({
   me: authedQuery.query((opts): UnifiedUser => {

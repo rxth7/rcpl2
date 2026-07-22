@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { createRouter, adminQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
+import { createRouter, adminQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
 
 export const auditLogRouter = createRouter({
   list: adminQuery

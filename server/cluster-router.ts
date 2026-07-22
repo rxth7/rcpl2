@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createRouter, adminQuery, authedQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
-import { createAuditLog } from "./lib/utils";
-import { env } from "./lib/env";
+import { createRouter, adminQuery, authedQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
+import { createAuditLog } from "./lib/utils.js";
+import { env } from "./lib/env.js";
 
 export const clusterRouter = createRouter({
   // ---------------- Admin: cluster CRUD ----------------

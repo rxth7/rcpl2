@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { createRouter, authedQuery } from "./middleware";
-import { getSupabaseAdmin } from "./lib/supabase";
+import { createRouter, authedQuery } from "./middleware.js";
+import { getSupabaseAdmin } from "./lib/supabase.js";
 
 export const ticketTimelineRouter = createRouter({
   list: authedQuery

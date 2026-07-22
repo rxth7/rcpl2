@@ -1,10 +1,10 @@
-import { getSupabaseAdmin } from "./supabase";
+import { getSupabaseAdmin } from "./supabase.js";
 import type {
   AuditLogRow,
   NotificationRow,
   Profile,
   TicketTimelineRow,
-} from "./db-types";
+} from "./db-types.js";
 
 // Generate next ticket number based on format setting
 export async function generateTicketNumber(): Promise<string> {

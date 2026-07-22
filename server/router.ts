@@ -1,20 +1,20 @@
-import { authRouter } from "./auth-router";
-import { branchUserRouter } from "./branch-user-router";
-import { branchRouter } from "./branch-router";
-import { clusterRouter } from "./cluster-router";
-import { ticketRouter } from "./ticket-router";
-import { ticketCommentRouter } from "./ticket-comment-router";
-import { ticketTimelineRouter } from "./ticket-timeline-router";
-import { ticketStatusRouter } from "./ticket-status-router";
-import { ticketCategoryRouter } from "./ticket-category-router";
-import { ticketPriorityRouter } from "./ticket-priority-router";
-import { notificationRouter } from "./notification-router";
-import { auditLogRouter } from "./audit-log-router";
-import { settingsRouter } from "./settings-router";
-import { dashboardRouter } from "./dashboard-router";
-import { reportRouter } from "./report-router";
-import { stationaryRouter } from "./stationary-router";
-import { createRouter, publicQuery } from "./middleware";
+import { authRouter } from "./auth-router.js";
+import { branchUserRouter } from "./branch-user-router.js";
+import { branchRouter } from "./branch-router.js";
+import { clusterRouter } from "./cluster-router.js";
+import { ticketRouter } from "./ticket-router.js";
+import { ticketCommentRouter } from "./ticket-comment-router.js";
+import { ticketTimelineRouter } from "./ticket-timeline-router.js";
+import { ticketStatusRouter } from "./ticket-status-router.js";
+import { ticketCategoryRouter } from "./ticket-category-router.js";
+import { ticketPriorityRouter } from "./ticket-priority-router.js";
+import { notificationRouter } from "./notification-router.js";
+import { auditLogRouter } from "./audit-log-router.js";
+import { settingsRouter } from "./settings-router.js";
+import { dashboardRouter } from "./dashboard-router.js";
+import { reportRouter } from "./report-router.js";
+import { stationaryRouter } from "./stationary-router.js";
+import { createRouter, publicQuery } from "./middleware.js";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
