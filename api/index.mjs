@@ -44461,7 +44461,7 @@ async function createContext(opts) {
   return ctx;
 }
 
-// api/index.ts
+// server/vercel-handler.ts
 var app = new Hono2();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.use("/api/trpc/*", async (c) => {
