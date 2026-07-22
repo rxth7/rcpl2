@@ -430,7 +430,7 @@ export const stationaryRouter = createRouter({
       const { data: allItems } = await supabase
         .from("stationary_items")
         .select("id, name, unit, threshold, price");
-      const thresholdMap = new Map((allItems ?? []).map((it: any) => [it.id, { unit: it.unit, threshold: it.threshold ?? 0, price: Number(it.price ?? 0) }]));
+      const thresholdMap = new Map<string, { unit: string; threshold: number; price: number }>((allItems ?? []).map((it: any) => [it.id, { unit: it.unit, threshold: it.threshold ?? 0, price: Number(it.price ?? 0) }]));
 
       // Aggregate: per-branch totals + per-item totals across all branches
       const aggBranchMap = new Map<string, { branchId: string; branchName: string; branchCode: string; branchRole: string | null; total: number; items: Record<string, { name: string; qty: number; price: number }> }>();
