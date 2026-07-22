@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter } from "../../api/router";
-import { createContext } from "../../api/context";
+import { appRouter } from "../../server/router";
+import { createContext } from "../../server/context";
 
 const app = new Hono();
 

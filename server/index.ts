@@ -2,8 +2,8 @@ import type { IncomingMessage, ServerResponse } from "http";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter } from "../server/router";
-import { createContext } from "../server/context";
+import { appRouter } from "./router";
+import { createContext } from "./context";
 
 const app = new Hono();
 

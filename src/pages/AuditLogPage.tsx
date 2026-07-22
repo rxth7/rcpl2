@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/providers/trpc";
 import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
-import type { AuditLogRow } from "../../api/lib/db-types";
+import type { AuditLogRow } from "../../server/lib/db-types";
 
 export default function AuditLogPage() {
   const [page, setPage] = useState(1);
