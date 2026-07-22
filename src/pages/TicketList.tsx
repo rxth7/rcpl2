@@ -1,0 +1,325 @@
+import { useState, useCallback } from "react";
+import { useNavigate } from "react-router";
+import { trpc } from "@/providers/trpc";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Plus, Search, Filter, Eye, Ticket, Download,
+} from "lucide-react";
+import * as XLSX from "xlsx";
+
+export default function TicketList() {
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
+  const [displayLimit, setDisplayLimit] = useState(10);
+  const [search, setSearch] = useState("");
+  const [statusId, setStatusId] = useState<string | undefined>();
+  const [branchId, setBranchId] = useState<string | undefined>();
+  const [branchRole, setBranchRole] = useState<"IT" | "Branch Admin" | "Manager" | undefined>();
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const limit = 10;
+
+  const { data: ticketsData, isLoading } = trpc.ticket.list.useQuery({
+    page: 1,
+    limit: displayLimit,
+    search: search || undefined,
+    statusId,
+    branchId,
+    branchRole: branchRole || undefined,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+  });
+
+  const { data: statuses } = trpc.ticketStatus.listEnabled.useQuery();
+  const { data: branches } = trpc.branch.listAll.useQuery();
+
+  const exportQuery = trpc.ticket.listExport.useQuery({
+    search: search || undefined,
+    statusId,
+    branchId,
+    branchRole: branchRole || undefined,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+  }, { enabled: false });
+
+  const handleExport = useCallback(async () => {
+    const result = await exportQuery.refetch();
+    const data = result.data;
+    if (!data || data.length === 0) return;
+
+    const wsData = data.map(t => ({
+      "Ticket Number": t.ticketNumber,
+      "Subject": t.subject,
+      "Branch": t.branch,
+      "Progress": t.status,
+      "Department": t.branchRole,
+      "Created": new Date(t.createdAt ?? new Date()).toLocaleDateString(),
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(wsData);
+    ws["!cols"] = [
+      { wch: 18 }, { wch: 40 }, { wch: 20 }, { wch: 15 }, { wch: 18 }, { wch: 14 },
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Tickets");
+    XLSX.writeFile(wb, "tickets.xlsx");
+  }, [exportQuery]);
+
+  const getStatusBadge = (statusName: string, color: string) => (
+    <span
+      className="px-2.5 py-1 rounded-full text-xs font-medium"
+      style={{ backgroundColor: `${color}20`, color }}
+    >
+      {statusName}
+    </span>
+  );
+
+  const getBranchRoleBadge = (role: string) => {
+    const colors: Record<string, string> = {
+      "IT": "bg-blue-100 text-blue-700",
+      "Branch Admin": "bg-purple-100 text-purple-700",
+      "Manager": "bg-amber-100 text-amber-700",
+    };
+    return (
+      <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[role] || "bg-gray-100 text-gray-600"}`}>
+        {role}
+      </span>
+    );
+  };
+
+  const clearFilters = () => {
+    setStatusId(undefined);
+    setBranchId(undefined);
+    setBranchRole(undefined);
+    setSearch("");
+    setDateFrom("");
+    setDateTo("");
+    setDisplayLimit(10);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Tickets</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {isAdmin ? "Manage and track all support tickets" : "View and manage your tickets"}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export Excel
+          </button>
+          {!isAdmin && (
+            <button
+              onClick={() => navigate("/tickets/new")}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Create Ticket
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by ID, subject, or keyword"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setDisplayLimit(10); }}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+          </button>
+        </div>
+
+        {showFilters && (
+          <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-3">
+            <select
+              value={statusId || ""}
+              onChange={(e) => { setStatusId(e.target.value || undefined); setDisplayLimit(10); }}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+            >
+              <option value="">All Statuses</option>
+              {statuses?.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <select
+              value={branchId || ""}
+              onChange={(e) => { setBranchId(e.target.value || undefined); setDisplayLimit(10); }}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+            >
+              <option value="">All Branches</option>
+              {branches?.map(b => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+            <select
+              value={branchRole || ""}
+              onChange={(e) => { setBranchRole((e.target.value || undefined) as "IT" | "Branch Admin" | "Manager" | undefined); setDisplayLimit(10); }}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+            >
+              <option value="">All Departments</option>
+              <option value="IT">IT</option>
+              <option value="Branch Admin">Branch Admin</option>
+              <option value="Manager">Manager</option>
+            </select>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setDisplayLimit(10); }}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+              placeholder="From"
+            />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setDisplayLimit(10); }}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+              placeholder="To"
+            />
+            <button
+              onClick={clearFilters}
+              className="px-3 py-2 text-sm text-gray-500 hover:text-red-600 transition-colors"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Ticket ID</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Subject</th>
+                {isAdmin && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Branch</th>}
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                {isAdmin && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Department</th>}
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Created</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-b border-gray-50">
+                    {Array.from({ length: isAdmin ? 7 : 5 }).map((_, j) => (
+                      <td key={j} className="py-3 px-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : ticketsData?.items?.length === 0 ? (
+                <tr>
+                  <td colSpan={isAdmin ? 7 : 5} className="py-12 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Ticket className="w-10 h-10 text-gray-300" />
+                      <p className="text-gray-500 text-sm">No tickets found</p>
+                      {!isAdmin && (
+                        <button
+                          onClick={() => navigate("/tickets/new")}
+                          className="text-red-600 text-sm hover:underline"
+                        >
+                          Create a ticket
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                ticketsData?.items?.map((ticket) => (
+                  <tr
+                    key={ticket.id}
+                    className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => navigate(`/tickets/${ticket.id}`)}
+                        className="text-sm font-mono text-red-600 hover:underline"
+                      >
+                        {ticket.ticketNumber}
+                      </button>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-gray-800 max-w-[200px] truncate">
+                      {ticket.subject}
+                    </td>
+                    {isAdmin && (
+                      <td className="py-3 px-4 text-sm text-gray-600">
+                        {(ticket as any).branch?.branchName || (ticket as any).branch?.name || "-"}
+                      </td>
+                    )}
+                    <td className="py-3 px-4">
+                      {ticket.status
+                        ? getStatusBadge(ticket.status.name, ticket.status.color)
+                        : <span className="text-gray-400 text-sm">-</span>
+                      }
+                    </td>
+                    {isAdmin && (
+                      <td className="py-3 px-4">
+                        {ticket.branchRole
+                          ? getBranchRoleBadge(ticket.branchRole)
+                          : <span className="text-gray-400 text-sm">-</span>
+                        }
+                      </td>
+                    )}
+                    <td className="py-3 px-4 text-sm text-gray-500">
+                      {new Date(ticket.createdAt ?? new Date()).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => navigate(`/tickets/${ticket.id}`)}
+                        className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-red-600 transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Load More */}
+        {ticketsData && ticketsData.total > 0 && (
+          <div className="flex flex-col items-center gap-2 px-4 py-4 border-t border-gray-200">
+            <p className="text-sm text-gray-500">
+              Showing {Math.min(displayLimit, ticketsData.total)} of {ticketsData.total} tickets
+            </p>
+            {ticketsData.total > displayLimit && (
+              <button
+                onClick={() => setDisplayLimit(d => d + limit)}
+                className="px-6 py-2 border border-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Load More
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
